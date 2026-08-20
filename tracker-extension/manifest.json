@@ -1,0 +1,16 @@
+{
+  "name": "Tracker extension",
+  "description": "Tracker extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "js": ["src/Readability.js", "src/content.js"],
+      "matches": [
+        "https://vnexpress.net/*",
+        "https://tuoitre.vn/*",
+        "https://dantri.com.vn/*"
+      ]
+    }
+  ]
+}
