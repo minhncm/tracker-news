@@ -1,20 +1,17 @@
-const siteConfig = {
-  "vnexpress.net": {
-    selectors: [".fck_detail"],
-  },
-
-  "dantri.com.vn": {
-    selectors: [".articleContent"],
-  },
-
-  "tuoitre.vn": {
-    selectors: [".detail-content"],
-  },
+const eventTypes = {
+  PAGE_ENTER: "PAGE_ENTER",
+  PAGE_ACTIVE: "PAGE_ACTIVE",
+  PAGE_INACTIVE: "PAGE_INACTIVE",
+  PAGE_LEAVE: "PAGE_LEAVE",
 };
 
+let sessionId = null;
 let activeStartTimePage = null;
 let isActivePage = !document.hidden && document.hasFocus();
 let totalReadingTime = 0;
+let idleTimer = null;
+let isIdle = true;
+let IDLE_TIME = 60 * 1000;
 
 function getArticleData() {
   const documentClone = document.cloneNode(true);
@@ -29,13 +26,18 @@ function getArticleData() {
 }
 
 function isArticlePage() {
-  const config = siteConfig[window.location.hostname];
+  const JsonLdScripts = document.querySelectorAll(
+    'script[type="application/ld+json"]',
+  );
 
-  if (!config) {
-    return false;
+  for (const script of JsonLdScripts) {
+    try {
+      const data = JSON.parse(script.textContent);
+      const type = data["@type"];
+      if (type === "NewsArticle") return true;
+    } catch (e) {}
   }
-
-  return config.selectors.some((selector) => document.querySelector(selector));
+  return false;
 }
 
 function calculateReadingTime() {
@@ -46,7 +48,7 @@ function calculateReadingTime() {
   activeStartTimePage = null;
 }
 
-function sendEvent(eventType, sessionId) {
+function sendEvent(eventType) {
   const event = {
     eventType,
     sessionId,
@@ -57,9 +59,27 @@ function sendEvent(eventType, sessionId) {
   };
 
   // send message to service_worker
+  console.log(event);
 }
 
-function checkActivePage(sessionId) {
+function setUserIdle() {
+  isIdle = true;
+  calculateReadingTime();
+  sendEvent(eventTypes.PAGE_INACTIVE);
+}
+
+function setUserActive() {
+  if (isIdle) {
+    isIdle = false;
+    activeStartTimePage = Date.now();
+    sendEvent(eventTypes.PAGE_ACTIVE);
+  }
+
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(setUserIdle, IDLE_TIME);
+}
+
+function checkActivePage() {
   const newState = !document.hidden && document.hasFocus();
 
   if (newState === isActivePage) return;
@@ -67,31 +87,31 @@ function checkActivePage(sessionId) {
   isActivePage = newState;
 
   if (isActivePage) {
-    activeStartTimePage = Date.now();
-    sendEvent("PAGE_ACTIVE", sessionId);
+    setUserActive();
   } else {
-    calculateReadingTime();
-    sendEvent("PAGE_INACTIVE", sessionId);
+    setUserIdle();
   }
 }
 
 if (isArticlePage()) {
-  const sessionId = crypto.randomUUID();
-  activeStartTimePage = Date.now();
+  sessionId = crypto.randomUUID();
 
   const data = getArticleData();
-  sendEvent("PAGE_ENTER", sessionId);
+  sendEvent(eventTypes.PAGE_ENTER);
+  setUserActive();
 
-  document.addEventListener("visibilitychange", () =>
-    checkActivePage(sessionId),
-  );
+  ["scroll", "mousemove", "touchstart", "click"].forEach((event) => {
+    document.addEventListener(event, setUserActive);
+  });
 
-  window.addEventListener("blur", () => checkActivePage(sessionId));
+  document.addEventListener("visibilitychange", () => checkActivePage());
 
-  window.addEventListener("focus", () => checkActivePage(sessionId));
+  window.addEventListener("blur", () => checkActivePage());
+
+  window.addEventListener("focus", () => checkActivePage());
 
   window.addEventListener("pagehide", () => {
-    calculateReadingTime();
-    sendEvent("PAGE_LEAVE", sessionId);
+    setUserIdle();
+    sendEvent(eventTypes.PAGE_LEAVE);
   });
 }
