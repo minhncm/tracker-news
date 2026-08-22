@@ -7,22 +7,28 @@ const eventTypes = {
 
 let sessionId = null;
 let activeStartTimePage = null;
-let isActivePage = !document.hidden && document.hasFocus();
+let isPageActive = !document.hidden && document.hasFocus();
 let totalReadingTime = 0;
-let idleTimer = null;
-let isIdle = true;
-let IDLE_TIME = 60 * 1000;
+let isUserActive = false;
+let inactiveTimer = null;
+let INACTIVE_TIME = 60 * 1000;
 
-function getArticleData() {
+function sendSession() {
   const documentClone = document.cloneNode(true);
   const article = new Readability(documentClone).parse();
 
-  return {
+  const session = {
+    sessionId,
     url: window.location.href,
     domain: window.location.hostname,
     title: article.title,
     content: article.textContent.trim(),
   };
+
+  chrome.runtime.sendMessage({
+    type: "send_session",
+    data: session,
+  });
 }
 
 function isArticlePage() {
@@ -53,52 +59,58 @@ function sendEvent(eventType) {
     eventType,
     sessionId,
     url: window.location.href,
-    // title: data.title,
     timestamp: new Date().toISOString(),
     totalReadingTime,
   };
 
-  // send message to service_worker
-  console.log(event);
+  chrome.runtime.sendMessage({
+    type: "TRACK_EVENT",
+    data: event,
+  });
 }
 
-function setUserIdle() {
-  isIdle = true;
+function setUserInactive() {
+  if (!isUserActive) return;
+
+  isUserActive = false;
   calculateReadingTime();
   sendEvent(eventTypes.PAGE_INACTIVE);
 }
 
 function setUserActive() {
-  if (isIdle) {
-    isIdle = false;
+  if (!isUserActive) {
+    isUserActive = true;
     activeStartTimePage = Date.now();
     sendEvent(eventTypes.PAGE_ACTIVE);
   }
 
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(setUserIdle, IDLE_TIME);
+  clearTimeout(inactiveTimer);
+  inactiveTimer = setTimeout(setUserInactive, INACTIVE_TIME);
 }
 
 function checkActivePage() {
   const newState = !document.hidden && document.hasFocus();
 
-  if (newState === isActivePage) return;
+  if (newState === isPageActive) return;
 
-  isActivePage = newState;
+  isPageActive = newState;
 
-  if (isActivePage) {
+  if (isPageActive) {
     setUserActive();
   } else {
-    setUserIdle();
+    setUserInactive();
   }
 }
 
 if (isArticlePage()) {
   sessionId = crypto.randomUUID();
 
-  const data = getArticleData();
+  sendSession();
   sendEvent(eventTypes.PAGE_ENTER);
-  setUserActive();
+
+  if (isPageActive) {
+    setUserActive();
+  }
 
   ["scroll", "mousemove", "touchstart", "click"].forEach((event) => {
     document.addEventListener(event, setUserActive);
@@ -111,7 +123,7 @@ if (isArticlePage()) {
   window.addEventListener("focus", () => checkActivePage());
 
   window.addEventListener("pagehide", () => {
-    setUserIdle();
+    setUserInactive();
     sendEvent(eventTypes.PAGE_LEAVE);
   });
 }
