@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "sessions")
@@ -19,20 +21,14 @@ public class Session {
     @Column(name = "session_id", length = 36)
     private String sessionId;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String url;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "article_id",
+            nullable = false
+    )
+    private Article article;
 
-    @Column(nullable = false, length = 255)
-    private String domain;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String title;
-
-    @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String content;
-
-    @Column(name = "start_time", nullable = false)
+    @Column(name = "start_time")
     private Instant startTime;
 
     @Column(name = "end_time")
@@ -40,4 +36,12 @@ public class Session {
 
     @Column(name = "total_reading_time")
     private Long totalReadingTime = 0L;
+
+
+    @OneToMany(
+            mappedBy = "session",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
+    private List<Event> events = new ArrayList<>();
 }

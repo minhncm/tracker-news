@@ -1,5 +1,6 @@
 package com.tracker.entities;
 
+import com.tracker.enums.EventType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,8 +27,9 @@ public class Event {
     )
     private Session session;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 50)
-    private String eventType;
+    private EventType eventType;
 
     @Column(name = "timestamp", nullable = false)
     private Instant timestamp;
