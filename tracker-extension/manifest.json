@@ -3,10 +3,11 @@
   "description": "Tracker extension",
   "version": "1.0",
   "manifest_version": 3,
+  "permissions": ["storage"],
   "host_permissions": ["http://localhost:8080/*"],
   "content_scripts": [
     {
-      "js": ["src/script/Readability.js", "src/script/content.js"],
+      "js": ["src/lib/Readability.js", "src/content.js"],
       "matches": [
         "https://vnexpress.net/*",
         "https://tuoitre.vn/*",
