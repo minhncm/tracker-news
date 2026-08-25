@@ -25,24 +25,26 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
         if(request.getEventType() == EventType.PAGE_ENTER) {
+            System.out.println("enter");
             session.setStartTime(request.getTimestamp());
         }
-
-        if(request.getEventType() == EventType.PAGE_LEAVE) {
+        else if(request.getEventType() == EventType.PAGE_LEAVE) {
+            System.out.println("leave");
             session.setEndTime(request.getTimestamp());
         }
-
-        if(request.getEventType() == EventType.PAGE_INACTIVE) {
+        else if(request.getEventType() == EventType.PAGE_INACTIVE) {
+            System.out.println("inactive");
             long readingTime = getReadingTime(request);
             session.setTotalReadingTime(session.getTotalReadingTime() + readingTime);
         }
+
+        sessionRepository.save(session);
 
         Event event = new Event();
         event.setTimestamp(request.getTimestamp());
         event.setEventType(request.getEventType());
         event.setSession(session);
 
-        sessionRepository.save(session);
         eventRepository.save(event);
     }
 
