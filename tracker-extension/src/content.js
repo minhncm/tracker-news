@@ -9,13 +9,16 @@ let sessionId = null;
 let isUserActive = false;
 let inactiveTimer = null;
 let INACTIVE_TIME = 60 * 1000;
+let isPageReloading = false;
 
 async function getSession() {
   const response = await chrome.runtime.sendMessage({ type: "GET_SESSION" });
+  const currentUrl = window.location.href;
 
-  if (!response.success) {
-    return;
+  if (response.success && response.data && response.data.url === currentUrl) {
+    return response.data;
   }
+  return null;
 }
 
 async function createSession() {
@@ -42,9 +45,11 @@ async function createSession() {
     data: session,
   });
 
-  if (response.success) {
-    sessionId = response.data.sessionId;
+  if (!response.success) {
+    return null;
   }
+
+  return response.data.sessionId;
 }
 
 function isArticlePage() {
@@ -94,14 +99,21 @@ function setUserActive() {
 
 async function init() {
   if (isArticlePage()) {
-    await createSession();
-    sendEvent(eventTypes.PAGE_ENTER);
+    const currentUrl = window.location.href;
+    const session = await getSession();
+
+    if (session && session.url === currentUrl) {
+      sessionId = session.sessionId;
+    } else {
+      sessionId = await createSession();
+      sendEvent(eventTypes.PAGE_ENTER);
+    }
 
     if (!document.hidden && document.hasFocus()) {
       setUserActive();
     }
 
-    ["scroll", "mousemove", "touchstart", "click"].forEach((event) => {
+    ["scroll", "touchstart", "click"].forEach((event) => {
       document.addEventListener(event, () => setUserActive());
     });
 
@@ -117,7 +129,17 @@ async function init() {
 
     window.addEventListener("focus", () => setUserActive());
 
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "F5") {
+        isPageReloading = true;
+        setUserInactive();
+      }
+    });
+
     window.addEventListener("pagehide", () => {
+      if (isPageReloading) {
+        return;
+      }
       setUserInactive();
       sendEvent(eventTypes.PAGE_LEAVE);
     });

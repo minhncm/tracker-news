@@ -1,5 +1,14 @@
-const queue = [];
 let isProcessing = false;
+let queueResolve = Promise.resolve();
+
+async function getEventQueue() {
+  const { eventQueue } = await chrome.storage.local.get("eventQueue");
+  return eventQueue || [];
+}
+
+async function setEventQueue(queue) {
+  await chrome.storage.local.set({ eventQueue: queue });
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== "CREATE_SESSION") {
@@ -45,20 +54,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   const event = message.data;
-  queue.push(event);
-  processQueue();
+
+  queueResolve = queueResolve
+    .then(async () => {
+      const queue = await getEventQueue();
+      queue.push(event);
+      await setEventQueue(queue);
+    })
+    .then(() => processQueue())
+    .catch((error) => console.log(error.message));
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== "GET_SESSION") {
     return;
   }
+  const key = `tab_${sender.tab.id}`;
 
-  const tabId = sender.tab.id;
   chrome.storage.session
-    .get(`tab_${tabId}`)
+    .get(key)
     .then((result) => {
-      console.log(result);
       sendResponse({
         success: true,
         data: result[key],
@@ -80,6 +95,7 @@ async function processQueue() {
   }
 
   isProcessing = true;
+  let queue = await getEventQueue();
 
   while (queue.length > 0) {
     const event = queue[0];
@@ -87,6 +103,7 @@ async function processQueue() {
     try {
       await sendEvent(event);
       queue.shift();
+      await setEventQueue(queue);
     } catch (error) {
       console.error(error);
       break;
@@ -108,3 +125,6 @@ async function sendEvent(event) {
     throw new Error(`HTTP ${response.status}`);
   }
 }
+
+chrome.runtime.onStartup.addListener(processQueue);
+processQueue();
