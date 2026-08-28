@@ -1,7 +1,7 @@
 package com.tracker.controllers;
 
 import com.tracker.dtos.request.EventRequest;
-import com.tracker.services.EventService;
+import com.tracker.services.event.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

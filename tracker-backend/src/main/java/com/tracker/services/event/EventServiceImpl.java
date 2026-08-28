@@ -1,4 +1,4 @@
-package com.tracker.services;
+package com.tracker.services.event;
 
 import com.tracker.dtos.request.EventRequest;
 import com.tracker.entities.Event;
@@ -7,7 +7,9 @@ import com.tracker.enums.EventType;
 import com.tracker.repositories.EventRepository;
 import com.tracker.repositories.SessionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 @Service
@@ -22,7 +24,7 @@ public class EventServiceImpl implements EventService {
 
         Session session = sessionRepository
                 .findById(request.getSessionId())
-                .orElseThrow(() -> new RuntimeException("Session not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Session not found" + request.getSessionId()));
 
         if(request.getEventType() == EventType.PAGE_ENTER) {
             System.out.println("enter");

@@ -1,4 +1,4 @@
-package com.tracker.services;
+package com.tracker.services.event;
 
 import com.tracker.dtos.request.EventRequest;
 
