@@ -18,7 +18,7 @@ import {
   ArrowOutward as OpenInNewIcon,
   Link as LinkIcon,
 } from '@mui/icons-material'
-import { mockApi } from '../data/mockData'
+import { api } from '../data/api'
 import { useMockQuery } from '../hooks/useMockQuery'
 import Breadcrumb from '../components/Breadcrumb'
 import Pagination from '../components/Pagination'
@@ -42,7 +42,7 @@ function ArticlesPage() {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const { data, loading } = useMockQuery(page, () =>
-    mockApi.fetchArticles(page, PAGE_SIZE),
+    api.fetchArticles(page, PAGE_SIZE),
   )
 
   return (
@@ -80,10 +80,10 @@ function ArticlesPage() {
                       key={article.id}
                       hover
                       tabIndex={0}
-                      onClick={() => navigate(`/articles/${article.id}/sessions`)}
+                      onClick={() => navigate(`/articles/${article.id}/sessions`, { state: { article } })}
                       onKeyDown={(event) => {
                         if (event.key === 'Enter') {
-                          navigate(`/articles/${article.id}/sessions`)
+                          navigate(`/articles/${article.id}/sessions`, { state: { article } })
                         }
                       }}
                       sx={{

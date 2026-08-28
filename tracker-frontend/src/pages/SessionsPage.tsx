@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
-import { mockApi } from '../data/mockData'
+import type { Article } from '../types'
+import { api } from '../data/api'
 import { useMockQuery } from '../hooks/useMockQuery'
 import Breadcrumb from '../components/Breadcrumb'
 import ArticleInfoCard from '../components/sessions/ArticleInfoCard'
@@ -12,12 +13,17 @@ const PAGE_SIZE = 10
 function SessionsPage() {
   const { articleId } = useParams<{ articleId: string }>()
   const id = Number(articleId)
+  const location = useLocation()
+
+  const stateArticle = (location.state as { article?: Article } | undefined)?.article
 
   const [page, setPage] = useState(1)
 
-  const article = useMockQuery(id, () => mockApi.fetchArticle(id))
+  const article = useMockQuery(id, () =>
+    stateArticle ? Promise.resolve(stateArticle) : api.fetchArticle(id),
+  )
   const sessions = useMockQuery(`${id}:${page}`, () =>
-    mockApi.fetchSessions(id, page, PAGE_SIZE),
+    api.fetchSessions(id, page, PAGE_SIZE),
   )
 
   return (
