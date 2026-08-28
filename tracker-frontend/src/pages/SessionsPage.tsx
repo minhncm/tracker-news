@@ -4,7 +4,6 @@ import { Box, Typography } from '@mui/material'
 import { mockApi } from '../data/mockData'
 import { useMockQuery } from '../hooks/useMockQuery'
 import Breadcrumb from '../components/Breadcrumb'
-import SessionTimelineModal from '../components/SessionTimelineModal'
 import ArticleInfoCard from '../components/sessions/ArticleInfoCard'
 import SessionTable from '../components/sessions/SessionTable'
 
@@ -15,7 +14,6 @@ function SessionsPage() {
   const id = Number(articleId)
 
   const [page, setPage] = useState(1)
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
 
   const article = useMockQuery(id, () => mockApi.fetchArticle(id))
   const sessions = useMockQuery(`${id}:${page}`, () =>
@@ -48,17 +46,8 @@ function SessionsPage() {
           loading={sessions.loading}
           data={sessions.data}
           onPageChange={setPage}
-          onSelect={setSelectedSessionId}
         />
       </Box>
-
-      {selectedSessionId && (
-        <SessionTimelineModal
-          articleId={id}
-          sessionId={selectedSessionId}
-          onClose={() => setSelectedSessionId(null)}
-        />
-      )}
     </Box>
   )
 }

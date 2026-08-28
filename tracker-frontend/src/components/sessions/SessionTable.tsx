@@ -7,46 +7,54 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-} from '@mui/material'
-import { Schedule as ScheduleIcon } from '@mui/icons-material'
-import type { Paginated, ReadingSession } from '../../types'
-import { EmptyState } from '../EmptyState'
-import { SkeletonRows } from '../Skeletons'
-import { headerCell } from '../tableStyles'
-import SessionTableRow from './SessionTableRow'
-import SessionTableFooter from './SessionTableFooter'
+} from "@mui/material";
+import { Schedule as ScheduleIcon } from "@mui/icons-material";
+import type { Paginated, ReadingSession } from "../../types";
+import { EmptyState } from "../EmptyState";
+import { SkeletonRows } from "../Skeletons";
+import { headerCell } from "../tableStyles";
+import SessionTableRow from "./SessionTableRow";
+import SessionTableFooter from "./SessionTableFooter";
 
 interface SessionTableProps {
-  loading: boolean
-  data?: Paginated<ReadingSession>
-  onPageChange: (page: number) => void
-  onSelect: (sessionId: string) => void
+  loading: boolean;
+  data?: Paginated<ReadingSession>;
+  onPageChange: (page: number) => void;
 }
 
-function SessionTable({ loading, data, onPageChange, onSelect }: SessionTableProps) {
+function SessionTable({ loading, data, onPageChange }: SessionTableProps) {
   return (
-    <Paper variant="outlined" sx={{ overflow: 'hidden', boxShadow: 1 }}>
+    <Paper variant="outlined" sx={{ overflow: "hidden", boxShadow: 1 }}>
       {loading ? (
-        <SkeletonRows rows={6} columns={4} />
+        <SkeletonRows rows={6} columns={5} />
       ) : data ? (
         <>
-          <TableContainer sx={{ width: '100%' }}>
-            <Table size="small" sx={{ minWidth: 820 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table size="small" sx={{ minWidth: 880 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ width: 280, ...headerCell }}>Session ID</TableCell>
-                  <TableCell sx={{ width: 180, ...headerCell }}>Start Time</TableCell>
-                  <TableCell sx={{ width: 180, ...headerCell }}>End Time</TableCell>
-                  <TableCell sx={{ ...headerCell }}>Total Reading Time</TableCell>
+                  <TableCell sx={{ width: 280, ...headerCell }}>
+                    Session ID
+                  </TableCell>
+                  <TableCell sx={{ width: 180, ...headerCell }}>
+                    Start Time
+                  </TableCell>
+                  <TableCell sx={{ width: 180, ...headerCell }}>
+                    End Time
+                  </TableCell>
+                  <TableCell sx={{ width: 180, ...headerCell }}>
+                    Total Reading Time
+                  </TableCell>
+                  <TableCell
+                    sx={{ width: 90, textAlign: "center", ...headerCell }}
+                  >
+                    Timeline
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {data.items.map((session) => (
-                  <SessionTableRow
-                    key={session.id}
-                    session={session}
-                    onSelect={() => onSelect(session.id)}
-                  />
+                  <SessionTableRow key={session.id} session={session} />
                 ))}
               </TableBody>
             </Table>
@@ -69,7 +77,7 @@ function SessionTable({ loading, data, onPageChange, onSelect }: SessionTablePro
         </>
       ) : null}
     </Paper>
-  )
+  );
 }
 
-export default SessionTable
+export default SessionTable;

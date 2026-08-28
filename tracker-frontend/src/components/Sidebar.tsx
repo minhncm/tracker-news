@@ -1,6 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Avatar,
   Box,
   Divider,
   Drawer,
@@ -16,7 +15,6 @@ import {
 import {
   Article as ArticleIcon,
   DescriptionRounded as LogoIcon,
-  SettingsOutlined as SettingsIcon,
 } from "@mui/icons-material";
 import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_MINI } from "../theme";
 
@@ -173,75 +171,6 @@ function Sidebar({ open, onNavigate }: SidebarProps) {
             </ListItemButton>
           </Tooltip>
         </List>
-
-        <Box sx={{ mt: "auto", pb: 0.5 }}>
-          <Divider />
-          <Tooltip
-            title="Settings"
-            placement="right"
-            disableHoverListener={!isMini}
-          >
-            <Box
-              component="button"
-              type="button"
-              onClick={onNavigate}
-              sx={{
-                mt: 1,
-                px: isMini ? 1 : 1.75,
-                py: 0.75,
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                gap: 1.25,
-                justifyContent: isMini ? "center" : "flex-start",
-                border: "none",
-                background: "transparent",
-                borderRadius: 1,
-                cursor: "pointer",
-                textAlign: "left",
-                "&:hover": { bgcolor: "action.hover" },
-              }}
-            >
-              <Avatar
-                sx={{
-                  width: 32,
-                  height: 32,
-                  fontSize: 12,
-                  fontWeight: 650,
-                  bgcolor: "#6366f1",
-                  flex: "none",
-                }}
-              >
-                NM
-              </Avatar>
-              {!isMini && (
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography
-                    sx={{
-                      fontSize: 13.5,
-                      fontWeight: 600,
-                      color: "text.primary",
-                    }}
-                    noWrap
-                  >
-                    Nguyen Minh
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: 12, color: "text.disabled" }}
-                    noWrap
-                  >
-                    Viewer
-                  </Typography>
-                </Box>
-              )}
-              {!isMini && (
-                <SettingsIcon
-                  sx={{ width: 17, height: 17, color: "text.disabled" }}
-                />
-              )}
-            </Box>
-          </Tooltip>
-        </Box>
       </Box>
     </Drawer>
   );
