@@ -58,7 +58,7 @@ public class SessionServiceImpl implements SessionService {
         articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Article not found: " + articleId));
 
-        Page<Session> sessions = sessionRepository.findAllByArticleIdAndEndTimeIsNotNull(articleId, PageRequest.of(page - 1, size));
+        Page<Session> sessions = sessionRepository.findAllByArticleId(articleId, PageRequest.of(page - 1, size));
 
         List<String> sessionIds = sessions.getContent()
                 .stream()
