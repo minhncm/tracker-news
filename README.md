@@ -34,6 +34,10 @@ Bật: `Developer mode`
 Chọn: `Load unpacked`
 Đến đường dẫn này `your_path/tracker_news` Sau đó chọn thư mục: `tracker-extension`
 
+## Kiến trúc hệ thống
+
+![Kiến trúc hệ thống](/docs/structure.png)
+
 ## Giải pháp
 
 ### Câu 1: Cách xác định thời gian người dùng thực sự đọc bài báo, thay vì chỉ tính thời gian tab được mở.
@@ -50,7 +54,7 @@ Chọn: `Load unpacked`
 >
 > Cuối cùng, thời gian đọc thực tế được xác định bằng cách tính tổng các khoảng thời gian giữa PAGE_ACTIVE và PAGE_INACTIVE . Cách tiếp cận này giúp loại bỏ những khoảng thời gian người dùng mở bài báo nhưng không thực sự đọc.
 
-### Cầu 2:
+### Câu 2:
 
 #### a.Xác định các tạo và quản lý session_id
 
@@ -233,7 +237,7 @@ Chọn: `Load unpacked`
 
 #### Ta giả lập việc mất kết nối bằng cách stop backend thì khi các event gửi không thành công sẽ được lưu ở chrome.storage.local
 
-![](/tracker-frontend/public/demo/image.png)
+![event queue](/docs/queue.png)
 
 ## Danh sách các chức năng đã hoàn thành
 
