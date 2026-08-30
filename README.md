@@ -44,7 +44,7 @@ Chọn: `Load unpacked`
 
 > Theo đề bài đã cho, chúng ta đã xây dựng 4 loại event chính: PAGE_ENTER, PAGE_ACTIVE, PAGE_INACTIVE và PAGE_LEAVE.
 >
-> rong đó, PAGE_ACTIVE và PAGE_INACTIVE được sử dụng để xác định khoảng thời gian người dùng thực sự đọc bài báo, thay vì chỉ tính toàn bộ thời gian tab được mở.
+> Trong đó, PAGE_ACTIVE và PAGE_INACTIVE được sử dụng để xác định khoảng thời gian người dùng thực sự đọc bài báo, thay vì chỉ tính toàn bộ thời gian tab được mở.
 >
 > Khi người dùng truy cập vào một bài báo, hệ thống sẽ tạo event PAGE_ENTER và đồng thời xác định người dùng đang ở trạng thái ACTIVE, từ đó ghi nhận event PAGE_ACTIVE.
 >
@@ -66,7 +66,7 @@ Chọn: `Load unpacked`
 >  String sessionId = UUID.randomUUID().toString();
 > ```
 >
-> Sau khi tạo session thành công, Backend trả về session_id cho Extension. Extension sẽ lưu session_id vào chrome.storage.local để có thể sử dụng lại trong suốt phiên đọc. Việc lưu trữ này giúp Extension duy trì thông tin session ngay cả khi service worker được khởi động lại.
+> Sau khi tạo session thành công, Backend trả về session_id cho Extension. Extension sẽ lưu session_id vào chrome.storage.session để có thể sử dụng lại trong suốt phiên đọc. Việc lưu trữ này giúp Extension duy trì thông tin session ngay cả khi service worker được khởi động lại.
 >
 > **Extension nhận session_id và lưu vào chrome.storage.local**
 >
@@ -253,4 +253,3 @@ Chọn: `Load unpacked`
 - Chưa xử lý được tình huống đóng chrome đột ngột nên không phát sinh `PAGE_LEAVE`
 - Chưa xử lý được tình huống khi website thay đổi cấu trúc `HTML` làm chức năng nội dung bài báo không hoạt động chính xác
 - Chưa xây dựng dashboard với các biểu đồ
--
